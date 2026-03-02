@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FemNest</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', Arial, sans-serif;
+        }
+
+        body {
+            position: relative;
+            overflow-x: hidden;
+            background-color: #f5f0f5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #background-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        header {
+            background-color: rgba(139, 0, 93, 0.9);
+            color: white;
+            padding: 1.5rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1.5rem;
+            font-size: 1.1rem;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        nav a:hover {
+            color: #ff99cc;
+        }
+
+        .hero {
+            background: transparent;
+            color: white;
+            text-align: center;
+            padding: 6rem 1rem;
+            animation: fadeIn 1s ease-in;
+            flex: 1 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            white-space: nowrap;
+            border-right: 2px solid #ff3399;
+            animation: typing 3s steps(40, end), blink 0.5s step-end infinite;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            background-color: #ff3399;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .cta-button:hover {
+            background-color: #cc0066;
+            transform: scale(1.05);
+        }
+
+        .section {
+            max-width: 1280px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex: 1 0 auto;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            color: #8B005D;
+            text-align: center;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            perspective: 1000px;
+            height: 400px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        
+        }
+
+        .card-back {
+            background: #ffccdd;
+            color: #8B005D;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #8B005D;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .card button {
+            background-color: #ff3399;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .card button:hover {
+            background-color: #cc0066;
+        }
+
+        .testimonials {
+            background: rgba(139, 0, 93, 0.1);
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        .testimonials h2 {
+            font-size: 2.5rem;
+            color: #8B005D;
+            margin-bottom: 2rem;
+        }
+
+        .testimonial-card {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .testimonial-card p {
+            font-style: italic;
+            color: #666;
+        }
+
+        .testimonial-card h4 {
+            margin-top: 1rem;
+            color: #8B005D;
+            font-weight: 600;
+        }
+
+        footer {
+            background-color: #8B005D;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        footer a {
+            color: #ff99cc;
+            text-decoration: none;
+            margin: 0 1rem;
+            cursor: pointer;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .skeleton {
+            background: #e0e0e0;
+            border-radius: 8px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .skeleton-image {
+            width: 100%;
+            height: 220px;
+            margin-bottom: 1rem;
+        }
+
+        .skeleton-text {
+            height: 24px;
+            width: 80%;
+            margin: 0.5rem auto;
+        }
+
+        .skeleton-button {
+            height: 48px;
+            width: 50%;
+            margin: 1rem auto;
+        }
+
+        @keyframes pulse {
+            0% { background-color: #e0e0e0; }
+            50% { background-color: #f5f5f5; }
+            100% { background-color: #e0e0e0; }
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent; }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .section h2, .testimonials h2 {
+                font-size: 1.8rem;
+            }
+
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        input, button {
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        button {
+            border: none;
+            background-color: #ff3399;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #cc0066;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: #ffccdd;
+            color: #8B005D;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="background-canvas"></canvas>
+    <header>
+        <nav>
+            <div class="logo">
+    <img src="assets/logo1.jpg" alt="FemNest Logo">
+</div>
+            <div>
+                <a href="home">Home</a>
+                <a href="login">Login</a>
+                <a href="signup">Signup</a>
+                <a href="survey">Survey</a>
+                <a href="matches">Matches</a>
+                <a href="room">Room</a>
+                <a href="admin">Admin</a>
+            </div>
+        </nav>
+    </header>
+    <div id="content"></div>
+    <footer>
+        <p>&copy; 2025 FemNest. All rights reserved.</p>
+        <div>
+            <a href="privacy">Privacy Policy</a>
+            <a href="terms">Terms of Service</a>
+            <a href="contact">Contact Us</a>
+        </div>
+    </footer>
+
+    <script>
+        // Canvas Particle Animation
+        const canvas = document.getElementById('background-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 4 + 2;
+                this.speedX = Math.random() * 1.5 - 0.75;
+                this.speedY = Math.random() * 1.5 - 0.75;
+                this.glow = Math.random() * 0.05 + 0.02;
+                this.phase = Math.random() * Math.PI * 2;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.size += Math.sin(this.phase) * this.glow;
+                this.phase += 0.1;
+                if (this.size < 2) this.size = 2;
+                if (this.size > 6) this.size = 6;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+
+            draw() {
+                ctx.fillStyle = '#ff3399';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#ff3399';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        let particles = [];
+        const particleCount = 30;
+
+        function initParticles() {
+            particles = [];
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(139, 0, 93, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        // JSON Data
+        async function fetchData() {
+            return new Promise(resolve => setTimeout(() => resolve({
+                hero: {
+                    title: " FemNest: Where Perfect Matches Begin ",
+                    description: "Connect with like-minded women for safe and harmonious co-living using our AI-powered matching system.",
+                    ctaText: "Start Matching Now",
+                    ctaAction: "navigate('survey')"
+                },
+                roommates: {
+                    title: "Featured Roommates",
+                    list: [
+                        {
+                            id: "rm1",
+                            name: "Ananya Sharma",
+                            age: 25,
+                            occupation: "Software Engineer",
+                            bio: "Friendly, organized, loves a tidy space.",
+                            preferences: "Clean, Quiet, Non-smoker",
+                            image: "assets/girl1.jpg"
+                        },
+                        {
+                            id: "rm2",
+                            name: "Priya Verma",
+                            age: 28,
+                            occupation: "Graphic Designer",
+                            bio: "Creative, loves cooking and movie nights.",
+                            preferences: "Social, Pet-friendly",
+                            image: "https://via.placeholder.com/320x220"
+                        }
+                    ]
+                },
+                rooms: {
+                    title: "Explore Co-Living Spaces",
+                    list: [
+                        {
+                            id: "r1",
+                            title: "Cozy Downtown Apartment",
+                            location: "Mumbai, MH",
+                            rent: 15000,
+                            description: "Spacious 2BHK with modern amenities.",
+                            amenities: "WiFi, Metro access",
+                            image: "https://via.placeholder.com/320x220"
+                        },
+                        {
+                            id: "r2",
+                            title: "Vibrant Shared Flat",
+                            location: "Bengaluru, KA",
+                            rent: 12000,
+                            description: "Bright flat for young professionals.",
+                            amenities: "Gym, Parking",
+                            image: "https://via.placeholder.com/320x220"
+                        }
+                    ]
+                },
+                testimonials: {
+                    title: "What Our Users Say",
+                    list: [
+                        {
+                            id: "t1",
+                            text: "FemNest made finding a roommate so easy!",
+                            author: "Riya Patel"
+                        },
+                        {
+                            id: "t2",
+                            text: "The AI matching is spot-on!",
+                            author: "Neha Singh"
+                        }
+                    ]
+                },
+                login: {
+                    title: "Welcome to FemNest",
+                    subtitle: "Login to find your perfect roommate"
+                },
+                signup: {
+                    title: "Join FemNest",
+                    subtitle: "Sign up to start your co-living journey"
+                },
+                survey: {
+                    title: "Tell Us About Yourself",
+                    questions: [
+                        { id: "q1", text: "When do you usually sleep and wake up?" },
+                        { id: "q2", text: "How clean do you keep your room?" },
+                        { id: "q3", text: "What are your work hours?" },
+                        { id: "q4", text: "How social are you?" },
+                        { id: "q5", text: "What kind of roommate do you prefer?" }
+                    ]
+                },
+                profiles: {
+                    title: "Your Matches",
+                    list: [
+                        {
+                            id: "p1",
+                            name: "Payal Roy",
+                            image: "https://via.placeholder.com/320x220",
+                            score: 92,
+                            bio: "Software Engineer, loves reading and yoga."
+                        },
+                        {
+                            id: "p2",
+                            name: "Sneha Gupta",
+                            image: "https://via.placeholder.com/320x220",
+                            score: 87,
+                            bio: "Graphic Designer, enjoys cooking and music."
+                        }
+                    ]
+                },
+                roomAssignment: {
+                    title: "Your Room Assignment",
+                    roomId: "R101",
+                    preferences: ["Mumbai", "12000-15000 INR", "Quiet", "Reading, Yoga"],
+                    explanation: "Assigned to a cozy apartment in Mumbai based on your preferences."
+                },
+                admin: {
+                    title: "Admin Dashboard",
+                    users: [
+                        { id: "u1", name: "Payal Roy", score: 92, room: "R101" },
+                        { id: "u2", name: "Sneha Gupta", score: 87, room: "R102" }
+                    ]
+                },
+                styles: {
+                    hero: {
+                        backgroundImage: "none",
+                        titleColor: "#ffffff",
+                        descriptionColor: "#ffccdd",
+                        ctaBackground: "#ff3399",
+                        ctaHover: "#cc0066"
+                    },
+                    card: {
+                        background: "#ffffff",
+                        shadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                        buttonBackground: "#ff3399",
+                        buttonHover: "#cc0066"
+                    },
+                    testimonials: {
+                        background: "rgba(139, 0, 93, 0.1)",
+                        textColor: "#666666",
+                        authorColor: "#8B005D"
+                    }
+                }
+            }), 1000));
+        }
+
+        // Navigation
+        const pages = {
+            home: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="hero">
+                        <h1>${data.hero.title}</h1>
+                        <p style="color: ${data.styles.hero.descriptionColor}">${data.hero.description}</p>
+                        <button class="cta-button" onclick="navigate('survey')">${data.hero.ctaText}</button>
+                    </section>
+                    <section class="section" id="roommates-section">
+                        <h2>${data.roommates.title}</h2>
+                        <div class="card-container" id="roommates-container">
+                            ${data.roommates.list.map(roommate => `
+                                <div class="card">
+                                    <div class="card-inner">
+                                        <div class="card-front">
+                                            <img src="${roommate.image}" alt="${roommate.name}">
+                                            <h3>${roommate.name}</h3>
+                                            <p>Age: ${roommate.age} | ${roommate.occupation}</p>
+                                            <button onclick="navigate('matches')">View Profile</button>
+                                        </div>
+                                        <div class="card-back">
+                                            <p>Preferences: ${roommate.preferences}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                    <section class="section" id="rooms-section">
+                        <h2>${data.rooms.title}</h2>
+                        <div class="card-container" id="rooms-container">
+                            ${data.rooms.list.map(room => `
+                                <div class="card">
+                                    <div class="card-inner">
+                                        <div class="card-front">
+                                            <img src="${room.image}" alt="${room.title}">
+                                            <h3>${room.title}</h3>
+                                            <p>Location: ${room.location} | Rent: ₹${room.rent}/month</p>
+                                            <button onclick="navigate('room')">View Details</button>
+                                        </div>
+                                        <div class="card-back">
+                                            <p>Amenities: ${room.amenities}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                    <section class="testimonials" id="testimonials-section">
+                        <h2>${data.testimonials.title}</h2>
+                        <div id="testimonials-container">
+                            ${data.testimonials.list.map(testimonial => `
+                                <div class="testimonial-card">
+                                    <p style="color: ${data.styles.testimonials.textColor}">"${testimonial.text}"</p>
+                                    <h4 style="color: ${data.styles.testimonials.authorColor}">- ${testimonial.author}</h4>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                `;
+            },
+            login: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="section">
+                        <h2>${data.login.title}</h2>
+                        <p class="text-center mb-4">${data.login.subtitle}</p>
+                        <form id="login-form" class="max-w-md mx-auto space-y-4">
+                            <input type="text" id="name" placeholder="Name" required>
+                            <input type="password" id="password" placeholder="Password" required>
+                            <button type="submit">Login</button>
+                            <p id="error-message" class="text-red-500 text-sm hidden"></p>
+                            <p>Don't have an account? <a href="signup" style="color: #ff3399;">Sign up here</a></p>
+                        </form>
+                    </section>
+                `;
+            },
+            signup: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="section">
+                        <h2>${data.signup.title}</h2>
+                        <p class="text-center mb-4">${data.signup.subtitle}</p>
+                        <form id="signup-form" class="max-w-md mx-auto space-y-4">
+                            <input type="text" id="name" placeholder="Name" required>
+                            <input type="password" id="password" placeholder="Password" required>
+                            <input type="email" id="email" placeholder="Email" required>
+                            <button type="submit">Sign Up</button>
+                            <p id="error-message" class="text-red-500 text-sm hidden"></p>
+                            <p>Already have an account? <a href="login" style="color: #ff3399;">Login here</a></p>
+                        </form>
+                    </section>
+                `;
+            },
+            survey: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="section">
+                        <h2>${data.survey.title}</h2>
+                        <form id="survey-form" class="max-w-md mx-auto space-y-4">
+                            ${data.survey.questions.map(q => `
+                                <div>
+                                    <label class="block font-medium">${q.text}</label>
+                                    <input type="text" id="${q.id}" class="w-full">
+                                    <button type="button" onclick="startVoice('${q.id}')">Voice Input</button>
+                                </div>
+                            `).join('')}
+                            <button type="submit">Submit</button>
+                        </form>
+                    </section>
+                `;
+            },
+            matches: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="section">
+                        <h2>${data.profiles.title}</h2>
+                        <div class="card-container">
+                            ${data.profiles.list.map(profile => `
+                                <div class="card">
+                                    <div class="card-inner">
+                                        <div class="card-front">
+                                            <img src="${profile.image}" alt="${profile.name}">
+                                            <h3>${profile.name}</h3>
+                                            <p>Match Score: ${profile.score}</p>
+                                            <button onclick="navigate('room')">View Profile</button>
+                                        </div>
+                                        <div class="card-back">
+                                            <p>${profile.bio}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </section>
+                `;
+            },
+            room: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="section">
+                        <h2>${data.roomAssignment.title}</h2>
+                        <div class="max-w-md mx-auto space-y-4">
+                            <p><strong>Room ID:</strong> ${data.roomAssignment.roomId}</p>
+                            <p><strong>Preferences:</strong> ${data.roomAssignment.preferences.join(', ')}</p>
+                            <p><strong>Explanation:</strong> ${data.roomAssignment.explanation}</p>
+                            <button onclick="speak('${data.roomAssignment.explanation}')">Listen</button>
+                            <button onclick="navigate('matches')">Back to Matches</button>
+                        </div>
+                    </section>
+                `;
+            },
+            admin: async () => {
+                const data = await fetchData();
+                return `
+                    <section class="section">
+                        <h2>${data.admin.title}</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Score</th>
+                                    <th>Room</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.admin.users.map(user => `
+                                    <tr>
+                                        <td>${user.name}</td>
+                                        <td>${user.score}</td>
+                                        <td>${user.room}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </section>
+                `;
+            }
+        };
+
+        function navigate(page) {
+            const content = document.getElementById('content');
+            content.innerHTML = '<div class="skeleton skeleton-text"></div>';
+            pages[page]().then(html => {
+                content.innerHTML = html;
+                if (page === 'login') addLoginListener();
+                if (page === 'signup') addSignupListener();
+                if (page === 'survey') addSurveyListener();
+            }).catch(err => {
+                content.innerHTML = '<p class="text-center text-red-500">Error loading page. Please try again.</p>';
+            });
+        }
+
+        function addLoginListener() {
+            const form = document.getElementById('login-form');
+            if (form) {
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const name = document.getElementById('name').value;
+                    const password = document.getElementById('password').value;
+                    const error = document.getElementById('error-message');
+                    if (!name || password.length < 6) {
+                        error.textContent = 'Name required, password must be 6+ chars';
+                        error.classList.remove('hidden');
+                        return;
+                    }
+                    error.classList.add('hidden');
+                    localStorage.setItem('user', JSON.stringify({ name }));
+                    navigate('survey');
+                });
+            }
+        }
+
+        function addSignupListener() {
+            const form = document.getElementById('signup-form');
+            if (form) {
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const name = document.getElementById('name').value;
+                    const password = document.getElementById('password').value;
+                    const email = document.getElementById('email').value;
+                    const error = document.getElementById('error-message');
+                    if (!name || password.length < 6 || !email.includes('@')) {
+                        error.textContent = 'Name required, password must be 6+ chars, valid email needed';
+                        error.classList.remove('hidden');
+                        return;
+                    }
+                    error.classList.add('hidden');
+                    localStorage.setItem('user', JSON.stringify({ name, email }));
+                    navigate('survey');
+                });
+            }
+        }
+
+        function addSurveyListener() {
+            const form = document.getElementById('survey-form');
+            if (form) {
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const answers = {};
+                    ['q1', 'q2', 'q3', 'q4', 'q5'].forEach(id => {
+                        answers[id] = document.getElementById(id).value;
+                    });
+                    if (Object.values(answers).some(v => !v)) {
+                        alert('Please answer all questions');
+                        return;
+                    }
+                    localStorage.setItem('survey', JSON.stringify(answers));
+                    navigate('matches');
+                });
+            }
+        }
+
+        function startVoice(id) {
+            try {
+                const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.onresult = e => {
+                    document.getElementById(id).value = e.results[0][0].transcript;
+                    recognition.stop();
+                };
+                recognition.onerror = () => alert('Voice input failed. Please use text.');
+                recognition.start();
+            } catch {
+                alert('Voice input not supported in this browser. Use text instead.');
+            }
+        }
+
+        function speak(text) {
+            try {
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
+            } catch {
+                alert('Text-to-speech not supported in this browser.');
+            }
+        }
+
+        document.querySelectorAll('nav a, footer a').forEach(link => {
+            link.addEventListener('click', e => {
+                e.preventDefault();
+                const page = link.getAttribute('href');
+                if (page && pages[page]) {
+                    navigate(page);
+                }
+            });
+        });
+
+        window.onload = () => navigate('home');
+    </script>
+    <script id="omnidimension-web-widget" async src="https://backend.omnidim.io/web_widget.js?secret_key=858e41a3d45994eefed1a087a6dca2d3"></script>
+</body>
+</html>
